@@ -1,0 +1,6 @@
+*.pyc
+*.bk
+*.m4a
+*.mp3
+bin/*
+temp/*
