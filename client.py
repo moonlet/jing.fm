@@ -2,18 +2,20 @@
 import api
 import Queue
 import mplayer
-from threading import Timer
 
 
 class Client(object):
   def __init__(self):
+    super(Client, self).__init__()
     self.__api = api.API()
     self.__play_list = Queue.Queue()
     self.__cur_track = None
     self.__player = mplayer.Player()
     self.__user = None
     self.__cmbt = None
-    self.__timer = None
+
+  def __del__(self):
+    self.exit()
 
   def __update_play_list(self):
     if self.__play_list.empty():
@@ -37,29 +39,25 @@ class Client(object):
     self.__update_cur_track()
     self.play()
 
-  def __timer_event(self, cur_time=0):
-    total_time = int(self.__cur_track['d'])
-    post_time = 30 if cur_time > 30 else 10
-    post_time = post_time \
-      if post_time + cur_time <= total_time \
-      else total_time - cur_time
-    mid_time = total_time / 2
+  def end_next(self):
     uid = self.__user['id']
     tid = self.__cur_track['tid']
-    # 歌曲结束
-    if cur_time >= total_time:
-      self.__api.post_end(uid, tid, total_time)
-      self.__next()
-      return
-    elif 0 <= cur_time - mid_time < 30:
-      self.__api.post_heard_song(uid, tid)
-      self.__cur_track['half_flag'] = True # 超过一半
-    if cur_time > 0:
-      self.__cur_track['next_flag'] = True # 超过10秒
-      self.__api.post_time(uid, self.__cmbt, tid, cur_time)
-    self.__timer = Timer( post_time, self.__timer_event, (cur_time + post_time,) )
-    self.__timer.start()
+    total_time = int(self.__cur_track['d'])
+    self.__api.post_end(uid, tid, total_time)
+    self.__next()
 
+  def heard_song(self):
+    uid = self.__user['id']
+    tid = self.__cur_track['tid']
+    self.__api.post_heard_song(uid, tid)
+    self.__cur_track['half_flag'] = True # 超过一半
+  
+  def post_time(self, cur_time):
+    uid = self.__user['id']
+    tid = self.__cur_track['tid']
+    self.__cur_track['next_flag'] = True # 超过10秒
+    self.__api.post_time(uid, self.__cmbt, tid, cur_time)
+    
   def init(self, username, password):
     # login
     login_dict = self.__api.login(username, password)
@@ -79,7 +77,6 @@ class Client(object):
     tid = self.__cur_track['tid']
     next_flag = self.__cur_track['next_flag']
     half_flag = self.__cur_track['half_flag']
-    self.__timer.cancel()
     return self.__api.post_next(uid, tid, next_flag, half_flag)
 
   def love_btn(self):
@@ -92,11 +89,17 @@ class Client(object):
     cmbt = self.__cmbt
     return self.__api.post_love_song(uid, tid, cmbt)
 
+  def hate_btn(self):
+    uid = self.__user['id']
+    tid = self.__cur_track['tid']
+    cmbt = self.__cmbt
+    self.__next()
+    return self.__api.post_hate_song(uid, tid, cmbt)
+
   def skip(self, time_gap=5):
     self.__player.time_pos += time_gap
 
   def exit(self):
-    self.__timer.cancel()
     self.__player.quit()
 
   def pause(self):
@@ -106,10 +109,9 @@ class Client(object):
     url = self.__cur_track['url']
     singer = self.__cur_track['cmps_info']['singer']
     name = self.__cur_track['n']
-    ct = int(self.__cur_track.get('ct', 0))
     self.__player.loadfile(url)
-    self.__player.time_pos = ct
-    self.__timer_event(ct)
+    #ct = int(self.__cur_track.get('ct', 0))
+    #self.__player.time_pos = ct
 
   def volume(self, vol):
     self.__player.volume = vol
@@ -133,22 +135,6 @@ class Client(object):
       return self.__player.volume
     elif key == "love":
       return self.__cur_track['lvd']
+    elif key == 'd':
+      return self.__cur_track['d']
 
-
-if __name__ == '__main__':
-  client = Client()
-  client.init('resonx@gmail.com', '411100')
-  client.play()
-  while 1:
-    cmd = raw_input()
-    if cmd == "next":
-      print client.next_btn()
-    elif cmd == "love":
-      print client.love_btn()
-    elif cmd == "exit":
-      client.exit()
-      break
-    elif cmd == "skip":
-      client.skip()
-    elif cmd == "vol":
-      client.volume(100.0)

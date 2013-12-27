@@ -20,6 +20,7 @@ class API(object):
     self.__end_post_url = 'http://jing.fm/api/v1/click/playduration/post'
     self.__next_post_url = 'http://jing.fm/api/v1/music/post_next'
     self.__heard_song_url = 'http://jing.fm/api/v1/music/post_heard_song'
+    self.__hate_song_url = 'http://jing.fm/api/v1/music/post_hate_song'
 
     self.__cover_url = 'http://img.jing.fm/album'
 
@@ -163,6 +164,16 @@ class API(object):
       "cmbt" : cmbt,
     }
     _, result = self.__net.request(self.__love_song_url, "POST", param_dict, self.__header_dict)
+    return self.__success(result)
+
+  def post_hate_song(self, uid, tid, cmbt):
+    param_dict = {
+      "uid" : uid,
+      "tid" : tid,
+      "c" : '1',
+      "cmbt" : cmbt,
+    }
+    _, result = self.__net.request(self.__hate_song_url, "POST", param_dict, self.__header_dict)
     return self.__success(result)
   
   def download(self, url, filepath):
