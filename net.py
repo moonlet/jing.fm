@@ -9,8 +9,11 @@ import types
 
 
 class Net(object):
-  def __init__(self, cookies="temp/cookies.txt"):
-    self.__init_cookie(cookies)
+  def __init__(self, cookies="cookies.txt"):
+    self.__path = 'temp'
+    if not os.path.exists(self.__path):
+      os.mkdir(self.__path)
+    self.__init_cookie("%s/%s" % (self.__path, cookies))
     self.__init_opener()
 
   def __init_cookie(self, cookies):

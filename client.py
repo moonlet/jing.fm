@@ -9,21 +9,23 @@ class Client(object):
     super(Client, self).__init__()
     self.__api = api.API()
     self.__play_list = Queue.Queue()
-    self.__cur_track = None
     self.__player = mplayer.Player()
+    self.__cur_track = None
     self.__user = None
     self.__cmbt = None
 
   def __del__(self):
-    self.exit()
+    self.__player.quit()
 
-  def __update_play_list(self):
+  def __update_playlist(self):
+    ''' 更新歌曲列表 '''
     if self.__play_list.empty():
       pls_dict = self.__api.fetch_pls(self.__cmbt, self.__user['id'])
       for item in pls_dict['items']:
         self.__play_list.put(item)
 
   def __update_cur_track(self):
+    ''' 更新当前播放歌曲的信息 '''
     self.__cur_track = self.__play_list.get()
     track_url = self.__api.fetch_track(self.__cur_track['mid'])
     self.__cur_track['url'] = track_url
@@ -35,11 +37,13 @@ class Client(object):
     self.__cur_track['half_flag'] = False
 
   def __next(self):
-    self.__update_play_list()
+    ''' 下一曲，原始封装 '''
+    self.__update_playlist()
     self.__update_cur_track()
     self.play()
 
   def end_next(self):
+    ''' 当前歌曲播放完毕，下一曲 '''
     uid = self.__user['id']
     tid = self.__cur_track['tid']
     total_time = int(self.__cur_track['d'])
@@ -47,12 +51,16 @@ class Client(object):
     self.__next()
 
   def heard_song(self):
+    ''' 听过该首歌
+    播放时长超过总时长一半时触发 '''
     uid = self.__user['id']
     tid = self.__cur_track['tid']
     self.__api.post_heard_song(uid, tid)
     self.__cur_track['half_flag'] = True # 超过一半
   
   def post_time(self, cur_time):
+    ''' 传递给服务器
+    表明当前歌曲听到哪了 '''
     uid = self.__user['id']
     tid = self.__cur_track['tid']
     self.__cur_track['next_flag'] = True # 超过10秒
@@ -62,14 +70,14 @@ class Client(object):
     # login
     login_dict = self.__api.login(username, password)
     if not login_dict:
-      return False
+      return False, u'登陆失败'
     self.__play_list.put(login_dict['pld'])
     self.__user = login_dict['usr']
     self.__cmbt = login_dict['pld']['cmbt']
     # fetch play list
-    self.__update_play_list()
+    self.__update_playlist()
     self.__update_cur_track()
-    return True
+    return True, None
 
   def next_btn(self):
     ''' 点击下一曲按钮
@@ -93,6 +101,7 @@ class Client(object):
     return self.__api.post_love_song(uid, tid, cmbt)
 
   def hate_btn(self):
+    ''' 是否讨厌当前播放的这首歌　'''
     uid = self.__user['id']
     tid = self.__cur_track['tid']
     cmbt = self.__cmbt
@@ -101,9 +110,6 @@ class Client(object):
 
   def skip(self, time_gap=5):
     self.__player.time_pos += time_gap
-
-  def exit(self):
-    self.__player.quit()
 
   def pause(self):
     self.__player.pause()
@@ -120,24 +126,39 @@ class Client(object):
     self.__player.volume = vol
 
   def download(self, url, path):
+    ''' 封装一个下载的功能 '''
     self.__api.download(url, path)
     
 
   def status(self, key):
-    if key == 'n':
+    # 当前时刻
+    if key == 'ct':
+      try:
+        return int(self.__player.time_pos)
+      except TypeError:
+        return 0
+    # 当前歌曲的总时长
+    elif key == 'd':
+      try:
+        return int(self.__cur_track['d'])
+      except TypeError:
+        return 0
+    # 歌曲名
+    elif key == 'n':
       return self.__cur_track['n']
+    # 歌手
     elif key == 'singer':
       return self.__cur_track['singer']
+    # 用户输入的"keyword"
     elif key == 'cmbt':
       return self.__cmbt
+    # 封面url
     elif key == 'cover_url':
       return self.__cur_track['am_cover']
-    elif key == 'cover_name':
-      return self.__cur_track['fid']
+    # 当前音量
     elif key == 'vol':
       return self.__player.volume
+    # 是否喜欢
     elif key == "love":
       return self.__cur_track['lvd']
-    elif key == 'd':
-      return self.__cur_track['d']
 

@@ -52,30 +52,30 @@ class LoveBtn(QtGui.QLabel):
       self.setPixmap(self.__normal_img)
 
 class ImageBtn(QtGui.QLabel):
-  def __init__(self, parent, qsize, normal_img, hover_img):
+  ''' 自定义图标的按钮 '''
+  def __init__(self, parent, size_tuple, normal_img, hover_img):
     super(ImageBtn, self).__init__(parent)
     self.__normal_img = QtGui.QPixmap(normal_img)
-    self.__hover_img = QtGui.QPixmap(hover_img) if hover_img else None
+    self.__hover_img = QtGui.QPixmap(hover_img)
     self.setPixmap(self.__normal_img)
-    self.setFixedSize(QtCore.QSize(qsize[0], qsize[1]))
+    self.setFixedSize(QtCore.QSize(size_tuple[0], size_tuple[1]))
 
   def mouseReleaseEvent(self, event):
     self.emit(QtCore.SIGNAL("released()"))
 
   def enterEvent(self, event):
-    if self.__hover_img:
-      self.setPixmap(self.__hover_img)
+    self.setPixmap(self.__hover_img)
     
   def leaveEvent(self, event):
-    if self.__hover_img:
-      self.setPixmap(self.__normal_img)
+    self.setPixmap(self.__normal_img)
 
 class ToggleBtn(QtGui.QLabel):
-  def __init__(self, parent, enable_img, disable_img, enable=True):
+  ''' 存在2个状态的按钮 '''
+  def __init__(self, parent, size_tuple, enable_img, disable_img, enable=True):
     super(ToggleBtn, self).__init__(parent)
     self.__enable_img = QtGui.QPixmap(enable_img)
     self.__disable_img = QtGui.QPixmap(disable_img)
-    self.setFixedSize(QtCore.QSize(120, 120))
+    self.setFixedSize(QtCore.QSize(size_tuple[0], size_tuple[1]))
     self.__enable = enable
     
   def __set_img(self):
@@ -97,6 +97,7 @@ class ToggleBtn(QtGui.QLabel):
 
 
 class ProcessBar(QtGui.QWidget):
+  ''' 进度条 '''
   def __init__(self, parent):
     super(ProcessBar, self).__init__(parent)
     self.__width = 300
@@ -125,7 +126,7 @@ class ProcessBar(QtGui.QWidget):
 
    
 class QTimer(QtCore.QTimer):
-  # ms
+  ''' 增加了暂停功能的定时器，单位ms '''
   def __init__(self, interval):
     super(QTimer, self).__init__()
     self.__interval = interval
@@ -141,6 +142,7 @@ class QTimer(QtCore.QTimer):
     self.__start_time = time.time() # ms
     self.__remnant_time = 0 # ms
 
+  # 用来处理不足1秒的暂停
   def __on_timer(self):
     self.__timer.stop()
     self.emit(QtCore.SIGNAL("timeout()"))
@@ -155,4 +157,3 @@ class QTimer(QtCore.QTimer):
         self.__timer.start(self.__remnant_time)
       else:
         self.start(self.__interval)
-  
