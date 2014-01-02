@@ -52,21 +52,23 @@ class LoveBtn(QtGui.QLabel):
       self.setPixmap(self.__normal_img)
 
 class ImageBtn(QtGui.QLabel):
-  def __init__(self, parent, normal_img, hover_img):
+  def __init__(self, parent, qsize, normal_img, hover_img):
     super(ImageBtn, self).__init__(parent)
     self.__normal_img = QtGui.QPixmap(normal_img)
-    self.__hover_img = QtGui.QPixmap(hover_img)
+    self.__hover_img = QtGui.QPixmap(hover_img) if hover_img else None
     self.setPixmap(self.__normal_img)
-    self.setFixedSize(QtCore.QSize(40, 40))
+    self.setFixedSize(QtCore.QSize(qsize[0], qsize[1]))
 
   def mouseReleaseEvent(self, event):
     self.emit(QtCore.SIGNAL("released()"))
 
   def enterEvent(self, event):
-    self.setPixmap(self.__hover_img)
+    if self.__hover_img:
+      self.setPixmap(self.__hover_img)
     
   def leaveEvent(self, event):
-    self.setPixmap(self.__normal_img)
+    if self.__hover_img:
+      self.setPixmap(self.__normal_img)
 
 class ToggleBtn(QtGui.QLabel):
   def __init__(self, parent, enable_img, disable_img, enable=True):

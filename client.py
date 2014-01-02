@@ -61,12 +61,15 @@ class Client(object):
   def init(self, username, password):
     # login
     login_dict = self.__api.login(username, password)
+    if not login_dict:
+      return False
     self.__play_list.put(login_dict['pld'])
     self.__user = login_dict['usr']
     self.__cmbt = login_dict['pld']['cmbt']
     # fetch play list
     self.__update_play_list()
     self.__update_cur_track()
+    return True
 
   def next_btn(self):
     ''' 点击下一曲按钮
