@@ -93,7 +93,8 @@ class ToggleBtn(QtGui.QLabel):
     self.__set_img()
 
   def leaveEvent(self, event):
-    self.setPixmap(QtGui.QPixmap(None))
+    if self.__enable:
+      self.setPixmap(QtGui.QPixmap(None))
 
 
 class ProcessBar(QtGui.QWidget):
@@ -157,3 +158,23 @@ class QTimer(QtCore.QTimer):
         self.__timer.start(self.__remnant_time)
       else:
         self.start(self.__interval)
+
+class EditLine(QtGui.QLineEdit):
+  def __init__(self, parent, size):
+    super(EditLine, self).__init__(parent)
+    self.setAlignment(QtCore.Qt.AlignCenter)
+    self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
+    self.__normal_style = '''QLineEdit{
+      width: %dpx;
+      height: %dpx;
+      border-width: 1px;
+      border-style: solid;
+      border-color: #FF0000;
+    }''' % (size[0], size[1])
+    self.setStyleSheet(self.__normal_style)
+    '''
+      background-image: url(%s);
+      background-repeat: no-repeat;
+      background-position: center left;
+    '''
+  

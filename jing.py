@@ -86,6 +86,7 @@ class QPlayerWidget(QBaseWidget):
   ''' 播放器 '''
   def __init__(self, player):
     super(QPlayerWidget, self).__init__()
+    self.setFocusPolicy(QtCore.Qt.ClickFocus)
     self.__cover_path = 'temp/cover'
     # 用于进度条的定时器
     self.__timer = QTimer(1000)
@@ -172,10 +173,14 @@ class QPlayerWidget(QBaseWidget):
 
   def __init_UI(self):
     self.setFixedSize(QtCore.QSize(300, 400))
+    # cmbt
+    self.__cmbt_line = EditLine(self, (250, 20))
+    self.__cmbt_line.move(25, 305)
+    self.__cmbt_line.setFocusPolicy(QtCore.Qt.ClickFocus)
     # 歌名标签
     self.__name_label = QtGui.QLabel(self)
     #self.__name_label.move(0, 320)
-    self.__name_label.setGeometry(0, 320, 300, 20)
+    self.__name_label.setGeometry(0, 270, 300, 20)
     # 进度条
     self.__process_bar = ProcessBar(self)
     self.__process_bar.setGeometry(0, 300, 300, 2)
@@ -183,6 +188,7 @@ class QPlayerWidget(QBaseWidget):
     self.__cover_bg = CoverLabel(self)
     self.__cover_bg.move(0, 0)
     self.__set_cover()
+    self.__name_label.raise_()
     # 桃心按钮
     self.__love_btn = LoveBtn(
       self,
@@ -216,8 +222,8 @@ class QPlayerWidget(QBaseWidget):
     self.__pause_btn = ToggleBtn(
       self,
       (120, 120),
-      'data/play.png',
       'data/pause.png',
+      'data/play.png',
     )
     self.__pause_btn.move(90, 90)
     self.connect(self.__pause_btn, QtCore.SIGNAL('released()'), self.__pause)
