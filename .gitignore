@@ -4,3 +4,4 @@
 *.mp3
 bin/*
 temp/*
+.cookies.txt

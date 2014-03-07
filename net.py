@@ -1,6 +1,9 @@
 # -*- encoding: utf-8 -*-
-import urllib2
-import urllib
+'''
+封装一套简单的HTTP/HTTPS的GET/POST/HEAD请求
+'''
+
+import urllib, urllib2
 import cookielib
 import zlib
 import os
@@ -9,30 +12,43 @@ import types
 
 
 class Net(object):
-  def __init__(self, cookies="cookies.txt"):
-    self.__path = 'temp'
-    if not os.path.exists(self.__path):
-      os.mkdir(self.__path)
-    self.__init_cookie("%s/%s" % (self.__path, cookies))
+  def __init__(self, cookies=".cookies.txt"):
+    self.__init_cookie(cookies)
     self.__init_opener()
 
+
   def __init_cookie(self, cookies):
+    '''
+    初始化cookie
+    @ cookies: cookie的存放位置
+    '''
     cookies = os.path.join(os.path.dirname(__file__), cookies)
     self.__cj = cookielib.LWPCookieJar(cookies)
 
+
   def __init_opener(self):
+    '''
+    初始化opener, 并处理好常规头信息.
+    '''
     opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(self.__cj))
     opener.addheaders = [
       ("Accept","text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"),
-      ("Accept-Encoding", "gzip,deflate,sdch"),
+      ("Accept-Encoding", "gzip,deflate,sdch"), # gzip压缩
       ("Accept-Language", "zh-CN,zh;q=0.8"),
       ("Connection", "keep-alive"),
       ("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.57 Safari/537.36 OPR/18.0.1284.63"),
       ]
     urllib2.install_opener(opener)
 
+
   @staticmethod
   def encode_dict(unicode_dict, code_type="utf-8"):
+    '''
+    统一编码为utf-8, 用作URL的参数
+    @ unicode_dict: 可能是unicode的dict
+    @ code_type: 就应该是UTF-8
+    @ return: 返回编码为UTF-8的dict
+    '''
     des_dict = {}
     for key in unicode_dict:
       value = unicode_dict[key]
@@ -43,15 +59,17 @@ class Net(object):
       des_dict[key] = value
     return des_dict
 
-  def request(self, url, method, param_dict={}, header_dict={}):
-    """支持HEAD/GET/POST三种方式的HTTP请求
-    参数：
-      url：连接网址
-      method：连接方式，可选HEAD/GET/POST
-      params：附加参数
-      header：附加头信息
-    """
 
+  def request(self, url, method, param_dict={}, header_dict={}):
+    '''
+    支持HEAD/GET/POST三种方式的HTTP/HTTPS请求
+    @ url: 连接网址, 必须包含HTTP或HTTPS
+    @ method: 连接方式，可选HEAD/GET/POST
+    @ params: 附加参数
+    @ header: 附加头信息
+    @ return: 成功返回头信息和数据信息
+    @ return: 失败返回None, None
+    '''
     params = urllib.urlencode(self.encode_dict(param_dict))
     if method == "GET":
       request = urllib2.Request("%s?%s" % (url, params), None)
@@ -73,7 +91,7 @@ class Net(object):
     else:
       self.__cj.save()
       response_head = response.info().getheader('Last-Modified')
-      result, info = self.unzip(response) if method != "HEAD" else True
+      info, result = self.unzip(response) if method != "HEAD" else True
       return info, result
 
   def __save_cookie(self):
@@ -81,19 +99,24 @@ class Net(object):
 
   @staticmethod
   def unzip(response):
+    '''
+    解压gzip
+    @ response: 通过request获取的反馈
+    @ return: 返回头信息和数据信息
+    '''
     info, result = response.info(), response.read()
-    if "Content-Encoding" in info and info["Content-Encoding"] == "gzip":
+    if "Content-Encoding" in info \
+    and info["Content-Encoding"] == "gzip":
       try:
         result = zlib.decompress(result, 16+zlib.MAX_WBITS)
-      except Exception as e:
+      except Exception:
         sys.stderr.write("[UNZIP_ERROR]\n")
-    return result, info
+    return info, result
 
 
 if __name__ == "__main__":
   c = Net()
-  c.init_cookie()
-  print c.request("http://jing.fm/api/v1/sessions/create", "POST", {"email":"xiaorx@live.com", "pwd":"411100"})
+  print c.request("http://www.baidu.com", "GET")
 
 
 
