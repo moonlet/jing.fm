@@ -98,7 +98,7 @@ class API(object):
     @ cmbt: 当前听的关键词或者领域
     @ user_id: 用户id
     @ return: 成功: 返回歌曲列表
-    @ return: 失败: 返回None或False
+    @ return: 失败: 返回None或空列表[]
     '''
     param_dict = {
       "q" : cmbt,
@@ -110,7 +110,9 @@ class API(object):
       "ss" : "true",
       }
     _, result = self.__net.request(self.__class__.FETCH_PLS_URL, "POST", param_dict, self.__header_dict)
-    return self.__success(result)
+    result = self.__success(result)
+    pls = result.get('items', None)
+    return pls
 
 
   def fetch_track(self, mid):
@@ -310,12 +312,13 @@ if __name__ == "__main__":
   cover_file = login_data['pld']['fid']
   d = login_data['pld']['d']
 
+  cmbt = "肖日新"
   print "fetch_pls",
   print c.fetch_pls(cmbt, uid)
 
   print "fetch_track_info",
   print c.fetch_track_info(uid, tid)
-  
+
   print "fetch_cover",
   print c.fetch_cover(cover_file)
 
@@ -327,7 +330,7 @@ if __name__ == "__main__":
 
   print "post_hate",
   print c.post_hate(uid, tid, cmbt)
-  
+
   print "post_time",
   print c.post_time(uid, cmbt, tid, 10)
 
@@ -339,16 +342,4 @@ if __name__ == "__main__":
 
   print "post_next",
   print c.post_next(uid, tid, True, True)
-
-  '''
-  print "track:", c.fetch_track()
-  print "info:", c.fetch_track_info()
-  print "time:", c.time_post(66)
-  time.sleep(10)
-  print "time:", c.time_post(26)
-  time.sleep(10)
-  print "time:", c.time_post(36)
-  time.sleep(2)
-  print "heard:", c.heard_song()
-  '''
 
