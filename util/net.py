@@ -82,19 +82,11 @@ class Net(object):
     for key in header_dict:
       request.add_header(key, header_dict[key])
 
-    info, result = None, None
-    try:
-      response = urllib2.urlopen(request)
-    except urllib2.HTTPError as e:
-      sys.stderr.write("[HTTP_ERROR] $ url=%s, code=%s\n" % (url, e.code))
-    except urllib2.URLError as e:
-      sys.stderr.write("[URL_ERROR] $ url=%s, reason=%s\n" % (url, e.reason))
-    else:
-      self.__cj.save()
-      response_head = response.info().getheader('Last-Modified')
-      info, result = self.unzip(response) if method != "HEAD" else True
-    finally:
-      return info, result
+    response = urllib2.urlopen(request)
+    self.__cj.save()
+    response_head = response.info().getheader('Last-Modified')
+    info, result = self.unzip(response)
+    return info, result
 
   def __save_cookie(self):
     self.__cj.save()

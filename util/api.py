@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 '''
-Jing.FM的API,应该对应的是2.0版本(猜的)
+Jing.FM的API,应该对应的是1.0版本
 所有的API均是网页版的API.
 '''
 import net, json
@@ -32,7 +32,7 @@ class API(object):
 
 
   def __init__(self):
-    self.__version = 2.0
+    self.__version = 1.0
     self.__net = net.Net()
 
 
@@ -301,10 +301,11 @@ class API(object):
 if __name__ == "__main__":
   c = API()
   # login
-  print "login:", 
+  #print "login:",
   login_data = c.login("resonx@gmail.com", "411100")
-  print login_data
+  #print login_data
 
+  '''
   cmbt = login_data['pld']['cmbt']
   uid = login_data['usr']['id']
   tid = login_data['pld']['tid']
@@ -312,7 +313,6 @@ if __name__ == "__main__":
   cover_file = login_data['pld']['fid']
   d = login_data['pld']['d']
 
-  cmbt = "肖日新"
   print "fetch_pls",
   print c.fetch_pls(cmbt, uid)
 
@@ -342,4 +342,4 @@ if __name__ == "__main__":
 
   print "post_next",
   print c.post_next(uid, tid, True, True)
-
+  '''

@@ -67,13 +67,16 @@ sudo python setup.py install
 
 由于是使用命令行来操作, 所以必须提供一些操作命令:
 
-1. info: 显示当前播放歌曲的信息
-2. cmbt: 关键词. 更换关键词, 例如: cmbt 刘德华
-3. next: 下一曲
-4. love: 桃心标记当前曲目
-5. hate: 当前歌曲扔垃圾桶
-6. help: 显示帮助内容
-7. exit: 退出, 因为程序包含多个线程, 所以CTRL+C效果不会好哦!
+0. boot: 用来开启服务程序, 如果已经开启了再输入会报错.\n\
+1. help: 显示当前内容.\n\
+2. cmbt: 关键词. 更换关键词, 例如: cmbt 刘德华.\n\
+3. next: 下一曲.\n\
+4. love: 桃心标记当前曲目.\n\
+5. hate: 当前歌曲扔垃圾桶.\n\
+6. info: 显示当前播放歌曲的信息.\n\
+7. exit: 退出, 因为程序包含多个线程, 所以 CTRL+C 效果不会好哦!\n\
+
+例如: jingFM.py login your-email your-password.\
 
 # N. 帮助 #
 
