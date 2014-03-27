@@ -9,114 +9,111 @@
   5. DEBUG: 本程序没有使用
 '''
 
-import logging, sys, os
+import logging
 import config
+import sys
+import os
 
 
 # 调整logging配置
 logging.basicConfig(
     filename=os.path.join(os.path.split(sys.argv[0])[0], config.logfile),
-    level = logging.WARNING,
-    filemode = 'a',
-    format = '%(levelname)s: %(asctime)s [%(lineno)s] : %(message)s',
+    level=logging.WARNING,
+    filemode='a',
+    format='%(levelname)s: %(asctime)s [%(lineno)s] : %(message)s',
 )
 
 
 class JingException(Exception):
-  '''
-  封装的Exception的基类.
-  考虑到还存在logging等级, 所以新建一个Exception.
-  '''
-  def __init__(self, msg, e='', codec='UTF-8'):
     '''
-    初始化JingException.
-    @ msg: 自己的错误提示信息
-    @ e: 底层一级传来的Exception
+    封装的Exception的基类.
+    考虑到还存在logging等级, 所以新建一个Exception.
     '''
-    self.msg = msg
-    self.e = e
-    self.__log_codec = codec
+    def __init__(self, msg, e='', codec='UTF-8'):
+        '''
+        初始化JingException.
+        @ msg: 自己的错误提示信息
+        @ e: 底层一级传来的Exception
+        '''
+        self.msg = msg
+        self.e = e
+        self.__log_codec = codec
 
-  def make_log(self):
-    '''
-    格式化log信息.
-    '''
-    content = "[%s] %s" % (self.msg.encode(self.__log_codec), str(self.e))
-    content = content.rstrip()
-    return content
+    def make_log(self):
+        '''
+        格式化log信息.
+        '''
+        content = "[%s] %s" % (self.msg.encode(self.__log_codec), str(self.e))
+        content = content.rstrip()
+        return content
 
-  def log(self):
-    '''
-    保存log信息
-    '''
-    pass
-
+    def log(self):
+        '''
+        保存log信息
+        '''
+        pass
 
 
 class JingCritical(JingException):
-  '''
-  CRITICAL等级的Exception.
-  '''
-  def __init__(self, msg, e='', codec='UTF-8'):
-    JingException.__init__(self, msg, e, codec)
-    self.log()
+    '''
+    CRITICAL等级的Exception.
+    '''
+    def __init__(self, msg, e='', codec='UTF-8'):
+        JingException.__init__(self, msg, e, codec)
+        self.log()
 
-  def log(self):
-    content = self.make_log()
-    logging.critical(content)
-
+    def log(self):
+        content = self.make_log()
+        logging.critical(content)
 
 
 class JingError(JingException):
-  '''
-  ERROR等级的Exception.
-  '''
-  def __init__(self, msg, e='', codec='UTF-8'):
-    JingException.__init__(self, msg, e, codec)
-    self.log()
+    '''
+    ERROR等级的Exception.
+    '''
+    def __init__(self, msg, e='', codec='UTF-8'):
+        JingException.__init__(self, msg, e, codec)
+        self.log()
 
-  def log(self):
-    content = self.make_log()
-    logging.error(content)
-
+    def log(self):
+        content = self.make_log()
+        logging.error(content)
 
 
 class JingWarning(JingException):
-  '''
-  WARNING等级的Exception.
-  '''
-  def __init__(self, msg, e='', codec='UTF-8'):
-    JingException.__init__(self, msg, e, codec)
-    self.log()
+    '''
+    WARNING等级的Exception.
+    '''
+    def __init__(self, msg, e='', codec='UTF-8'):
+        JingException.__init__(self, msg, e, codec)
+        self.log()
 
-  def log(self):
-    content = self.make_log()
-    logging.warning(content)
+    def log(self):
+        content = self.make_log()
+        logging.warning(content)
 
 
 class JingInfo(JingException):
-  '''
-  INFO等级的Exception.
-  '''
-  def __init__(self, msg, e='', codec='UTF-8'):
-    JingException.__init__(self, msg, e, codec)
-    self.log()
+    '''
+    INFO等级的Exception.
+    '''
+    def __init__(self, msg, e='', codec='UTF-8'):
+        JingException.__init__(self, msg, e, codec)
+        self.log()
 
-  def log(self):
-    content = self.make_log()
-    logging.info(content)
+    def log(self):
+        content = self.make_log()
+        logging.info(content)
 
 
 class JingDebug(JingException):
-  '''
-  DEBUG等级的Exception. 暂时没用上.
-  '''
-  def __init__(self, msg, e='', codec='UTF-8'):
-    JingException.__init__(self, msg, e, codec)
-    self.log()
+    '''
+    DEBUG等级的Exception. 暂时没用上.
+    '''
+    def __init__(self, msg, e='', codec='UTF-8'):
+        JingException.__init__(self, msg, e, codec)
+        self.log()
 
-  def log(self):
-    content = self.make_log()
-    logging.debug(content)
-
-
+    def log(self):
+        content = self.make_log()
+        logging.debug(content)
